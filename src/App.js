@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import './App.css';
-import logo from './mlh-prep.png'
+import logo from "./mlh-prep.png";
+import LeafletMap from "./components/map/Map.js";
 
 function App() {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [city, setCity] = useState("New York City")
+  const [city, setCity] = useState("New York City");
   const [results, setResults] = useState(null);
+  const [cityCoordinates, setCityCoordinates] = useState({
+    lat: 51.505,
+    lon: -0.09,
+  });
 
   useEffect(() => {
     fetch("https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=metric" + "&appid=" + process.env.REACT_APP_APIKEY)
@@ -18,14 +23,19 @@ function App() {
           } else {
             setIsLoaded(true);
             setResults(result);
+            setCityCoordinates({
+              lat: result.coord.lat,
+              lon: result.coord.lon,
+            });
+            setCity(`${result.name}`);
           }
         },
         (error) => {
           setIsLoaded(true);
           setError(error);
         }
-      )
-  }, [city])
+      );
+  }, [city]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -47,8 +57,9 @@ function App() {
             <i><p>{results.name}, {results.sys.country}</p></i>
           </>}
         </div>
-      </div>
-    </>
+          <LeafletMap />
+        </div>
+      </>
   }
 }
 
